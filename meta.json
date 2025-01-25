@@ -1,21 +1,24 @@
 {
-  "hublink": {
-      "advertise": "HUBLINK",
-      "advertise_every": 14400,
-      "advertise_for": 30,
-      "try_reconnect": true,
-      "reconnect_attempts": 2,
-      "reconnect_every": 30,
-      "upload_path": "/FED",
-      "append_path": "subject:id",
-      "disable": false
-  },
-  "subject": {
-      "id": "mouse001",
-      "strain": "",
-      "sex": ""
-  },
-  "fed": {
-      "program": ""
-  }
+    "hublink": {
+        "advertise": "HUBLINK",
+        "advertise_every": 14400,
+        "advertise_for": 30,
+        "try_reconnect": true,
+        "reconnect_attempts": 2,
+        "reconnect_every": 30,
+        "upload_path": "/FED",
+        "append_path": "experiment:name/subject:id",
+        "disable": false
+    },
+    "subject": {
+        "id": "mouse001",
+        "strain": "",
+        "sex": ""
+    },
+    "fed": {
+        "program": ""
+    },
+    "experiment": {
+        "name": "preference_test"
+    }
 }

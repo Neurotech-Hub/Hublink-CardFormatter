@@ -1,13 +1,12 @@
-# Drive Formatter
+# Hublink Drive Formatter
 
-A macOS-only command-line tool for safely formatting removable media devices. Formats drives to FAT32 and automatically adds a configured meta.json file.
+A macOS-only command-line tool for safely formatting removable media devices for use with [hublink.cloud](https://hublink.cloud).
 
 ## Features
 
 - Safe detection of removable media only (no system drives)
 - FAT32 formatting using macOS diskutil
-- Custom volume naming (6 letters + underscore + 3 random alphanumeric)
-- Automatic meta.json file creation
+- Automatic configuration file creation
 - Interactive terminal interface
 - Safe drive ejection via diskutil
 
@@ -30,58 +29,33 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+## Files
+
+- `format_meta_json.py` - For formatting Hublink Node drives (requires meta.json template)
+- `format_hublink_config.py` - For formatting Hublink Gateway drives
+- `meta.json` - Configuration template for Nodes
+- `README.md` - Documentation
+- `.gitignore` - Git ignore rules
+
 ## Usage
 
+### For Hublink Nodes
+
 1. Ensure meta.json is configured with your desired settings
+2. Run: `python format_meta_json.py`
+3. Follow the prompts to:
+   - Select a drive
+   - Enter a 6-character base name
+   - Confirm and format
 
-2. Run the script:
-```bash
-python format_drive.py
-```
+### For Hublink Gateways
 
-3. The program will:
-   - Scan and list available removable drives
-   - Prompt you to select a drive by number
-   - Ask for a 6-character base name
-   - Show formatting details for confirmation
-   - Format the drive and add meta.json
-   - Offer to eject the drive
-   - Ask if you want to format another drive
-
-Example session:
-```
-Scanning for removable drives...
-
-Available drives:
-1. /dev/disk9 - NO NAME
-
-Select drive number (or 'q' to quit): 1
-
-Enter 6-character base name (or 'q' to quit): MOUSE1
-
-Preparing to format drive:
-Device: /dev/disk9
-New name: MOUSE1_X2Y
-
-meta.json content:
-{
-  "hublink": {
-    ...
-  }
-}
-
-Proceed with formatting? (Y/n): Y
-
-Formatting drive...
-Mounting disk...
-Writing meta.json...
-Drive formatted successfully!
-
-Eject drive now? (Y/n): Y
-Drive ejected successfully!
-
-Scan for another drive? (Y/n):
-```
+1. Run: `python format_hublink_config.py`
+2. Follow the prompts to:
+   - Select a drive
+   - Enter the Hublink secret URL
+   - Enter the gateway name
+   - Confirm and format
 
 ## Safety Features
 
@@ -92,13 +66,6 @@ Scan for another drive? (Y/n):
 - Option to quit at any step
 - Safe drive ejection
 - Proper mount/unmount handling
-
-## File Structure
-
-- `format_drive.py` - Main program
-- `meta.json` - Configuration template
-- `README.md` - Documentation
-- `.gitignore` - Git ignore rules
 
 ## Note
 
