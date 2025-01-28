@@ -3,22 +3,22 @@
         "advertise": "HUBLINK",
         "advertise_every": 14400,
         "advertise_for": 30,
-        "try_reconnect": true,
+        "try_reconnect": false,
         "reconnect_attempts": 2,
         "reconnect_every": 30,
-        "upload_path": "/FED",
-        "append_path": "experiment:name/subject:id",
+        "upload_path": "/BEAM",
+        "append_path": "device:id",
         "disable": false
     },
     "subject": {
-        "id": "mouse001",
+        "id": "",
         "strain": "",
         "sex": ""
     },
-    "fed": {
-        "program": ""
-    },
     "experiment": {
-        "name": "preference_test"
+        "name": ""
+    },
+    "device": {
+        "id": "001"
     }
 }
