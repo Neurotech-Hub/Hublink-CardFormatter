@@ -20,7 +20,7 @@ A macOS-only command-line tool for safely formatting removable media devices for
 1. Clone this repository:
 ```bash
 git clone [repository-url]
-cd MetaJsonFormatter
+cd HublinkJsonFormatter
 ```
 
 2. Create and activate a virtual environment:
