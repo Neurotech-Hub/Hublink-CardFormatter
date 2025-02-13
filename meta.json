@@ -10,6 +10,13 @@
         "append_path": "device:id",
         "disable": false
     },
+    "beam": {
+        "sync_every_minutes": 90,
+        "sync_for_seconds": 30,
+        "log_every_minutes": 5,
+        "new_file_on_boot": true,
+        "inactivity_period_seconds": 40
+    },
     "subject": {
         "id": "",
         "strain": "",
