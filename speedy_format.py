@@ -12,6 +12,7 @@ import itertools
 TARGET_VOLUME_NAME = "NO NAME"  # The volume name to look for
 BASE_NAME = "KEPECS"  # 6-character base name for formatted drives
 FORMAT_COUNT = 0  # Keep track of number of drives formatted
+SYSTEM_VOLUMES = {'.timemachine', 'Macintosh HD', 'System', 'Home'}  # Cache system volumes
 
 def get_spinner():
     """Returns an iterator for a simple spinner animation."""
@@ -20,32 +21,30 @@ def get_spinner():
 def get_target_drive() -> Optional[Tuple[str, str]]:
     """Scan for drive with TARGET_VOLUME_NAME and return (device_id, volume_name) if found."""
     try:
-        volumes = [v for v in os.listdir('/Volumes') 
-                  if v not in ['.timemachine', 'Macintosh HD', 'System', 'Home']]
+        volumes = set(os.listdir('/Volumes')) - SYSTEM_VOLUMES
         
-        for volume in volumes:
-            if volume == TARGET_VOLUME_NAME:
-                try:
-                    info = subprocess.check_output(['diskutil', 'info', f'/Volumes/{volume}'], 
-                                                text=True, stderr=subprocess.DEVNULL)
-                    disk_id = None
+        if TARGET_VOLUME_NAME in volumes:
+            try:
+                info = subprocess.check_output(['diskutil', 'info', f'/Volumes/{TARGET_VOLUME_NAME}'], 
+                                            text=True, stderr=subprocess.DEVNULL)
+                disk_id = None
+                
+                # Get the whole disk identifier
+                for line in info.split('\n'):
+                    if 'Part of Whole:' in line:
+                        disk_id = f"/dev/{line.split(':')[1].strip()}"
+                        break
+                
+                if disk_id:
+                    # Get disk info to verify it's not system disk
+                    disk_info = subprocess.check_output(['diskutil', 'info', disk_id],
+                                                      text=True, stderr=subprocess.DEVNULL)
+                    if 'Internal:' in disk_info and 'Yes' in disk_info.split('Internal:')[1].split('\n')[0]:
+                        return None
+                    return (disk_id, TARGET_VOLUME_NAME)
                     
-                    # Get the whole disk identifier
-                    for line in info.split('\n'):
-                        if 'Part of Whole:' in line:
-                            disk_id = f"/dev/{line.split(':')[1].strip()}"
-                            break
-                    
-                    if disk_id:
-                        # Get disk info to verify it's not system disk
-                        disk_info = subprocess.check_output(['diskutil', 'info', disk_id],
-                                                          text=True, stderr=subprocess.DEVNULL)
-                        if 'Internal:' in disk_info and 'Yes' in disk_info.split('Internal:')[1].split('\n')[0]:
-                            continue
-                        return (disk_id, volume)
-                        
-                except subprocess.CalledProcessError:
-                    continue
+            except subprocess.CalledProcessError:
+                pass
     except Exception as e:
         print(f"\rError scanning drives: {e}", end='')
     
@@ -69,8 +68,8 @@ def format_drive(device_id: str, meta_json: dict) -> bool:
         subprocess.run(['diskutil', 'mountDisk', device_id], 
                       check=True, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
         
-        # Small delay to ensure the drive is fully mounted
-        time.sleep(2)
+        # Reduced delay to ensure the drive is mounted
+        time.sleep(1)
         
         print("\rWriting meta.json...", end='')
         # Write meta.json
@@ -138,7 +137,7 @@ def main():
                 if format_drive(drive[0], meta_json):
                     eject_drive(drive[0])
             
-            time.sleep(1)
+            time.sleep(0.1)  # Reduced scanning interval
             
     except KeyboardInterrupt:
         print("\n\nExiting... Final format count:", FORMAT_COUNT)
