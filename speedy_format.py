@@ -1,3 +1,4 @@
+import copy
 import os
 import sys
 import json
@@ -11,10 +12,12 @@ from datetime import datetime
 import itertools
 
 # Configuration
+BASE_NAME = "WHEEL"  # 6-character base name for formatted drives
+START_META_JSON_ID = 1  # Starting meta.json ID (unused when template has device.id)
+INCREMENT_META_JSON_ID = True  # Increment device.id each format when meta.json includes device.id
 # Volume label(s) to watch for on removable drives (exact match). Unlabeled FAT32
 # often shows as "NO NAME". Use a string or tuple, e.g. ("NO NAME", "KEPECS").
 TARGET_VOLUME_NAMES: Union[str, Sequence[str]] = ("NO NAME")
-BASE_NAME = "BASE"  # 6-character base name for formatted drives
 FORMAT_COUNT = 0      # Keep track of number of drives formatted
 
 # macOS system volumes to ignore during scanning
@@ -54,6 +57,64 @@ def _print_windows_admin_format_help() -> None:
         "  • Start \"Windows Terminal\" or \"PowerShell\" → right‑click → Run as administrator\n"
         "  • cd to this project folder and run: python speedy_format.py\n",
         file=sys.stderr,
+    )
+
+
+def _parse_meta_device_id(value: Union[str, int]) -> int:
+    """Parse device.id from meta.json (e.g. \"001\" -> 1)."""
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("device.id is empty")
+        return int(stripped, 10)
+    raise ValueError(f"device.id must be str or int, got {type(value).__name__}")
+
+
+def _meta_device_id_width(value: Union[str, int]) -> int:
+    """Zero-pad width from template (e.g. \"001\" -> 3)."""
+    if isinstance(value, str) and value.strip().isdigit():
+        return len(value.strip())
+    return 3
+
+
+def _format_meta_device_id(n: int, width: int) -> str:
+    return str(n).zfill(width)
+
+
+def _meta_json_with_device_id(meta_json: dict, device_id: int, width: int) -> dict:
+    """Return a copy of meta_json with device.id set to a zero-padded string."""
+    out = copy.deepcopy(meta_json)
+    device = out.setdefault("device", {})
+    if not isinstance(device, dict):
+        raise ValueError("meta.json 'device' must be an object")
+    device["id"] = _format_meta_device_id(device_id, width)
+    return out
+
+
+def _format_success_line(format_count: int, volume_name: str, meta_json: dict) -> str:
+    """Build the post-format success message, including device.id when incrementing."""
+    line = f"Drive {format_count}: {volume_name}"
+    if INCREMENT_META_JSON_ID:
+        device = meta_json.get("device")
+        if isinstance(device, dict) and "id" in device:
+            line = f"Drive {format_count} (id {device['id']}): {volume_name}"
+    return line
+
+
+def _init_device_id_counter(meta_json: dict) -> Optional[Tuple[int, int]]:
+    """
+    When INCREMENT_META_JSON_ID is True and meta.json has device.id, return (next_id, pad_width).
+    """
+    if not INCREMENT_META_JSON_ID:
+        return None
+    device = meta_json.get("device")
+    if not (isinstance(device, dict) and "id" in device):
+        return None
+    return (
+        _parse_meta_device_id(device["id"]),
+        _meta_device_id_width(device["id"]),
     )
 
 
@@ -139,7 +200,7 @@ def _format_drive_mac(device_id: str, volume_name: str, meta_json: dict) -> bool
             json.dump(meta_json, f, indent=2)
         FORMAT_COUNT += 1
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f"\r[{timestamp}] \u2713 Drive {FORMAT_COUNT}: {volume_name}")
+        print(f"\r[{timestamp}] \u2713 {_format_success_line(FORMAT_COUNT, volume_name, meta_json)}")
         return True
     except subprocess.CalledProcessError as e:
         print(f"\r\u274c Error: {e.stderr.decode()}")
@@ -270,7 +331,7 @@ def _format_drive_windows(disk_number: str, volume_name: str, meta_json: dict) -
             json.dump(meta_json, f, indent=2)
         FORMAT_COUNT += 1
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f"\r[{timestamp}] \u2713 Drive {FORMAT_COUNT}: {volume_name}")
+        print(f"\r[{timestamp}] \u2713 {_format_success_line(FORMAT_COUNT, volume_name, meta_json)}")
         return True
     except subprocess.CalledProcessError as e:
         err = e.stderr or ''
@@ -350,6 +411,14 @@ def main():
         print(f"Error loading meta.json: {e}")
         return
 
+    device_id_counter = _init_device_id_counter(meta_json)
+    if device_id_counter:
+        next_id, pad_width = device_id_counter
+        print(
+            f"Device IDs: starting at {_format_meta_device_id(next_id, pad_width)}, "
+            f"incrementing each format"
+        )
+
     if IS_WINDOWS:
         if not _is_windows_admin():
             print(
@@ -376,7 +445,13 @@ def main():
             drive = get_target_drive()
             if drive:
                 print("\r", end='')
-                if format_drive(drive[0], meta_json):
+                drive_meta = meta_json
+                if device_id_counter is not None:
+                    next_id, pad_width = device_id_counter
+                    drive_meta = _meta_json_with_device_id(meta_json, next_id, pad_width)
+                if format_drive(drive[0], drive_meta):
+                    if device_id_counter is not None:
+                        device_id_counter = (device_id_counter[0] + 1, device_id_counter[1])
                     eject_drive(drive[0])
             # Windows: spawning PowerShell each loop is slow; a slightly longer pause is fine.
             time.sleep(0.5 if IS_WINDOWS else 0.1)
