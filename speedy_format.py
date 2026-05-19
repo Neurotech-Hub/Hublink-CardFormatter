@@ -13,8 +13,8 @@ import itertools
 # Configuration
 # Volume label(s) to watch for on removable drives (exact match). Unlabeled FAT32
 # often shows as "NO NAME". Use a string or tuple, e.g. ("NO NAME", "KEPECS").
-TARGET_VOLUME_NAMES: Union[str, Sequence[str]] = ("NO NAME", "KEPECS")
-BASE_NAME = "KEPECS"  # 6-character base name for formatted drives
+TARGET_VOLUME_NAMES: Union[str, Sequence[str]] = ("NO NAME")
+BASE_NAME = "BASE"  # 6-character base name for formatted drives
 FORMAT_COUNT = 0      # Keep track of number of drives formatted
 
 # macOS system volumes to ignore during scanning

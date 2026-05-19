@@ -1,32 +1,13 @@
 {
     "hublink": {
-        "advertise": "HUBLINK",
-        "advertise_every": 120,
-        "advertise_for": 30,
+        "advertise": "JUXTA",
+        "advertise_every": 10,
+        "advertise_for": 10,
         "try_reconnect": false,
-        "reconnect_attempts": 2,
+        "reconnect_attempts": 3,
         "reconnect_every": 30,
-        "upload_path": "/RAVEN",
-        "append_path": "device:id",
+        "upload_path": "/BASE",
+        "append_path": "",
         "disable": false
-    },
-    "wheel": {
-        "sleep_time_seconds": 10,
-        "sync_every_seconds": 60,
-        "sync_for_seconds": 30
-    },
-    "logger": {
-        "log_base_name": "HUBWHEEL",
-        "log_file_mode": "daily",
-        "log_fields": [
-            "rtc_unix",
-            "rtc_text",
-            "magnet_passes",
-            "batt_v",
-            "batt_per"
-        ]
-    },
-    "device": {
-        "id": "001"
     }
 }
