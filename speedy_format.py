@@ -12,8 +12,8 @@ from datetime import datetime
 import itertools
 
 # Configuration
-BASE_NAME = "WHEEL"  # 6-character base name for formatted drives
-START_META_JSON_ID = 1  # Starting meta.json ID (unused when template has device.id)
+BASE_NAME = "BASE"  # 6-character base name for formatted drives
+START_META_JSON_ID = 15  # Starting integer for device.id (e.g. 15 -> "015")
 INCREMENT_META_JSON_ID = True  # Increment device.id each format when meta.json includes device.id
 # Volume label(s) to watch for on removable drives (exact match). Unlabeled FAT32
 # often shows as "NO NAME". Use a string or tuple, e.g. ("NO NAME", "KEPECS").
@@ -106,16 +106,14 @@ def _format_success_line(format_count: int, volume_name: str, meta_json: dict) -
 def _init_device_id_counter(meta_json: dict) -> Optional[Tuple[int, int]]:
     """
     When INCREMENT_META_JSON_ID is True and meta.json has device.id, return (next_id, pad_width).
+    The counter starts at START_META_JSON_ID; zero-pad width is taken from the meta.json template.
     """
     if not INCREMENT_META_JSON_ID:
         return None
     device = meta_json.get("device")
     if not (isinstance(device, dict) and "id" in device):
         return None
-    return (
-        _parse_meta_device_id(device["id"]),
-        _meta_device_id_width(device["id"]),
-    )
+    return (int(START_META_JSON_ID), _meta_device_id_width(device["id"]))
 
 
 def _target_labels() -> Tuple[str, ...]:
