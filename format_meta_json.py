@@ -10,8 +10,10 @@ def get_removable_drives() -> List[Tuple[str, str]]:
     """Scan for removable drives and return list of (device_id, volume_name) tuples."""
     drives = []
     try:
+        # Exclude system volumes, recovery volumes, and Time Machine backups
+        excluded_volumes = ['.timemachine', 'Macintosh HD', 'System', 'Home', 'Recovery']
         volumes = [v for v in os.listdir('/Volumes') 
-                  if v not in ['.timemachine', 'Macintosh HD', 'System', 'Home']]
+                  if not any(excluded in v for excluded in excluded_volumes)]
         
         for volume in volumes:
             try:
@@ -19,6 +21,10 @@ def get_removable_drives() -> List[Tuple[str, str]]:
                                             text=True, stderr=subprocess.DEVNULL)
                 disk_id = None
                 volume_name = volume
+                
+                # Skip if this appears to be a recovery partition
+                if 'Recovery' in info or 'Apple_Boot' in info:
+                    continue
                 
                 # Get the whole disk identifier
                 for line in info.split('\n'):
@@ -30,8 +36,15 @@ def get_removable_drives() -> List[Tuple[str, str]]:
                     # Get disk info to verify it's not system disk
                     disk_info = subprocess.check_output(['diskutil', 'info', disk_id],
                                                       text=True, stderr=subprocess.DEVNULL)
+                    
+                    # Skip internal drives and recovery partitions
                     if 'Internal:' in disk_info and 'Yes' in disk_info.split('Internal:')[1].split('\n')[0]:
                         continue
+                        
+                    # Skip drives with "Recovery" in the name or info
+                    if 'Recovery' in disk_info or 'Recovery' in volume_name:
+                        continue
+                        
                     drives.append((disk_id, volume_name))
                     
             except subprocess.CalledProcessError:
