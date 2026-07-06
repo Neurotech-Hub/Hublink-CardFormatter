@@ -1,0 +1,35 @@
+{
+    "hublink": {
+        "advertise": "HUBLINK",
+        "advertise_every": 10,
+        "advertise_for": 10,
+        "try_reconnect": false,
+        "reconnect_attempts": 2,
+        "reconnect_every": 30,
+        "upload_path": "/WHEEL",
+        "append_path": "device:id",
+        "disable": false
+    },
+    "wheel": {
+        "sleep_time_seconds": 300,
+        "sync_every_seconds": 14400,
+        "sync_for_seconds": 30
+    },
+    "logger": {
+        "log_base_name": "WHEEL",
+        "log_file_mode": "daily",
+        "log_fields": [
+            "datetime",
+            "magnet_passes",
+            "passes_min",
+            "batt_v",
+            "batt_per",
+            "temp_c",
+            "lux"
+        ],
+        "inc_on_reboot": false
+    },
+    "device": {
+        "id": "001"
+    }
+}
