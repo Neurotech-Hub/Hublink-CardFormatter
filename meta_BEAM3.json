@@ -16,7 +16,7 @@
         "sync_for_seconds": 30,
         "new_file_on_boot": false,
         "inactivity_period_seconds": 40,
-        "randomize_alarm_minutes": 1
+        "randomize_alarm_minutes": 0
     },
     "subject": {
         "id": "",
