@@ -1,8 +1,8 @@
 {
     "hublink": {
         "advertise": "CREED",
-        "advertise_every": 120,
-        "advertise_for": 30,
+        "advertise_every": 120, // not used for BEAM3 -- sync_every_minutes
+        "advertise_for": 30, // not used for BEAM3 -- sync_for_seconds
         "try_reconnect": false,
         "reconnect_attempts": 2,
         "reconnect_every": 30,
@@ -11,8 +11,8 @@
         "disable": false
     },
     "beam": {
-        "log_every_minutes": 1,
-        "sync_every_minutes": 3,
+        "log_every_minutes": 10,
+        "sync_every_minutes": 360,
         "sync_for_seconds": 30,
         "new_file_on_boot": false,
         "inactivity_period_seconds": 40,
