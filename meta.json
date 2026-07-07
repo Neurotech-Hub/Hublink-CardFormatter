@@ -1,12 +1,12 @@
 {
     "hublink": {
         "advertise": "CREED",
-        "advertise_every": 120, // not used for BEAM3 -- sync_every_minutes
-        "advertise_for": 30, // not used for BEAM3 -- sync_for_seconds
+        "advertise_every": 120,
+        "advertise_for": 30,
         "try_reconnect": false,
         "reconnect_attempts": 2,
         "reconnect_every": 30,
-        "upload_path": "/BEAM",
+        "upload_path": "/BEAM3",
         "append_path": "device:id",
         "disable": false
     },

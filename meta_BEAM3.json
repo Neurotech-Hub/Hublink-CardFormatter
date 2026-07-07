@@ -5,7 +5,7 @@
         "advertise_for": 30,
         "reconnect_attempts": 2,
         "reconnect_every": 30,
-        "upload_path": "/BEAM",
+        "upload_path": "/BEAM3",
         "append_path": "device:id",
         "disable": false
     },
