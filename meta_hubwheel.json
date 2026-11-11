@@ -29,6 +29,10 @@
         ],
         "inc_on_reboot": false
     },
+    "rtc": {
+        "datetime": "2026-11-11 12:00:00",
+        "timezone": "-06:00"
+    },
     "device": {
         "id": "001"
     }

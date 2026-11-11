@@ -12,7 +12,7 @@ from datetime import datetime
 import itertools
 
 # Configuration
-BASE_NAME = "BEAM3"  # 6-character base name for formatted drives
+BASE_NAME = "WHEEL"  # 6-character base name for formatted drives
 START_META_JSON_ID = 1  # Starting integer for device.id (e.g. 15 -> "015")
 INCREMENT_META_JSON_ID = True  # Increment device.id each format when meta.json includes device.id
 # Volume label(s) to watch for on removable drives (exact match). Unlabeled FAT32
